@@ -164,12 +164,12 @@ export function CreateTaskDialog({
 
               <div className="space-y-2">
                 <Label htmlFor="task-assignee">Assignee (optional)</Label>
-                <Select value={assigneeId} onValueChange={setAssigneeId} disabled={isLoading}>
+                <Select value={assigneeId || "unassigned"} onValueChange={(v) => setAssigneeId(v === "unassigned" ? "" : v)} disabled={isLoading}>
                   <SelectTrigger id="task-assignee">
                     <SelectValue placeholder="Select assignee" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Unassigned</SelectItem>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
                     {users.map((user) => (
                       <SelectItem key={user.id} value={user.id}>
                         {user.name}

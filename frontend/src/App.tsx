@@ -6,6 +6,7 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
+import { TaskDetailPage } from './pages/TaskDetailPage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/" element={<ProjectsPage />} />
               <Route path="/projects/:id" element={<ProjectDetailPage />} />
+              <Route path="/projects/:projectId/tasks/:taskId" element={<TaskDetailPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

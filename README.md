@@ -45,10 +45,15 @@ I chose Mock Service Worker (MSW) over alternatives like json-server because:
 ### Optimistic UI Updates
 Task status changes are handled optimistically - the UI updates immediately and reverts if the API call fails. This provides a snappier user experience.
 
+### Drag-and-Drop Implementation
+Implemented using @dnd-kit, the drag-and-drop feature allows users to:
+- Drag tasks between columns (To Do, In Progress, Done) to change their status
+- Visual feedback with highlighted drop zones and a rotated drag overlay
+- Keyboard accessibility support for drag operations
+
 ### Tradeoffs Made
-1. **No real-time updates**: Chose polling/manual refresh over WebSocket implementation to keep scope manageable
-2. **No drag-and-drop**: Focused on core functionality first; would add with @dnd-kit if time permitted
-3. **Local storage for auth**: Production would use httpOnly cookies for better security
+1. **No real-time updates**: Chose polling/manual refresh over WebSocket implementation to keep scope manageable for a frontend-only assignment
+2. **Local storage for auth**: Production would use httpOnly cookies for better security
 
 ---
 
@@ -203,10 +208,10 @@ All project endpoints require `Authorization: Bearer <token>` header.
 ## 7. What I'd Do With More Time
 
 ### Immediate Improvements
-1. **Drag-and-drop**: Add @dnd-kit for reordering tasks and changing status via drag
-2. **Unit/Integration Tests**: Add Vitest + Testing Library tests for components
-3. **Better error handling**: Implement toast notifications for success/error feedback
-4. **Pagination**: Add infinite scroll or pagination for projects/tasks list
+1. **Unit/Integration Tests**: Add Vitest + Testing Library tests for components
+2. **Better error handling**: Implement toast notifications for success/error feedback
+3. **Pagination**: Add infinite scroll or pagination for projects/tasks list
+4. **Task reordering within columns**: Add ability to reorder tasks by priority within the same column
 
 ### Architecture Enhancements
 1. **React Query**: Replace manual state management with TanStack Query for caching and background refetching
@@ -245,6 +250,7 @@ All project endpoints require `Authorization: Bearer <token>` header.
 ### Bonus Features
 - [x] Dark mode toggle that persists across sessions
 - [x] Responsive mobile-first design
+- [x] Drag-and-drop to change task status between columns
 
 ---
 

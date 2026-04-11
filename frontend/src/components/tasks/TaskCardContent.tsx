@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Calendar, MoreVertical, Trash2, Edit2, User as UserIcon } from 'lucide-react';
 import { api } from '../../lib/api';
 import { formatDate, cn } from '../../lib/utils';
@@ -12,23 +13,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { getInitials } from '../../lib/utils';
 import type { Task, TaskStatus, User, ApiError } from '../../types';
 
-interface TaskCardProps {
+interface TaskCardContentProps {
   task: Task;
   users: User[];
   onEdit: () => void;
-  onStatusChange: (task: Task) => void;
   onDelete: (taskId: string) => void;
+  disableNavigation?: boolean;
 }
 
 const statusConfig: Record<TaskStatus, { label: string; variant: 'default' | 'info' | 'success' }> = {
@@ -43,34 +37,13 @@ const priorityConfig = {
   high: { label: 'High', className: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' },
 };
 
-export function TaskCard({ task, users, onEdit, onStatusChange, onDelete }: TaskCardProps) {
-  const [isUpdating, setIsUpdating] = useState(false);
+export function TaskCardContent({ task, users, onEdit, onDelete, disableNavigation = false }: TaskCardContentProps) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const [optimisticStatus, setOptimisticStatus] = useState<TaskStatus | null>(null);
+  const navigate = useNavigate();
 
   const assignee = users.find((u) => u.id === task.assignee_id);
-  const currentStatus = optimisticStatus || task.status;
-  const statusInfo = statusConfig[currentStatus];
+  const statusInfo = statusConfig[task.status];
   const priorityInfo = priorityConfig[task.priority];
-
-  const handleStatusChange = async (newStatus: TaskStatus) => {
-    if (newStatus === task.status) return;
-
-    setOptimisticStatus(newStatus);
-    setIsUpdating(true);
-
-    try {
-      const updatedTask = await api.updateTask(task.id, { status: newStatus });
-      onStatusChange(updatedTask);
-      setOptimisticStatus(null);
-    } catch (err) {
-      setOptimisticStatus(null);
-      const apiError = err as ApiError;
-      console.error('Failed to update task:', apiError.error);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -85,15 +58,27 @@ export function TaskCard({ task, users, onEdit, onStatusChange, onDelete }: Task
     }
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (disableNavigation) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('[role="menuitem"]')) {
+      return;
+    }
+    navigate(`/projects/${task.project_id}/tasks/${task.id}`);
+  };
+
   return (
-    <Card className={cn(
-      "transition-all",
-      isUpdating && "opacity-70",
-      isDeleting && "opacity-50 pointer-events-none"
-    )}>
+    <Card 
+      className={cn(
+        "transition-all hover:shadow-md",
+        isDeleting && "opacity-50 pointer-events-none",
+        !disableNavigation && "cursor-pointer hover:border-primary/50"
+      )}
+      onClick={handleCardClick}
+    >
       <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-base font-medium line-clamp-2">
+        <div className="flex items-start justify-between gap-2 min-w-0">
+          <CardTitle className="text-base font-medium line-clamp-2 break-words min-w-0">
             {task.title}
           </CardTitle>
           <DropdownMenu>
@@ -122,7 +107,7 @@ export function TaskCard({ task, users, onEdit, onStatusChange, onDelete }: Task
       </CardHeader>
       <CardContent className="space-y-3">
         {task.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="text-sm text-muted-foreground line-clamp-2 break-words">
             {task.description}
           </p>
         )}
@@ -133,21 +118,6 @@ export function TaskCard({ task, users, onEdit, onStatusChange, onDelete }: Task
         </div>
 
         <div className="flex items-center justify-between">
-          <Select
-            value={currentStatus}
-            onValueChange={(value) => handleStatusChange(value as TaskStatus)}
-            disabled={isUpdating}
-          >
-            <SelectTrigger className="h-8 w-[130px] text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todo">To Do</SelectItem>
-              <SelectItem value="in_progress">In Progress</SelectItem>
-              <SelectItem value="done">Done</SelectItem>
-            </SelectContent>
-          </Select>
-
           {assignee && (
             <div className="flex items-center gap-1.5">
               <Avatar className="h-6 w-6">
@@ -166,14 +136,14 @@ export function TaskCard({ task, users, onEdit, onStatusChange, onDelete }: Task
               <span className="text-xs">Unassigned</span>
             </div>
           )}
-        </div>
 
-        {task.due_date && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Calendar className="h-3.5 w-3.5" />
-            <span>Due {formatDate(task.due_date)}</span>
-          </div>
-        )}
+          {task.due_date && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Calendar className="h-3.5 w-3.5" />
+              <span>{formatDate(task.due_date)}</span>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

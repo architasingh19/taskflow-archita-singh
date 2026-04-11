@@ -179,12 +179,12 @@ export function EditTaskDialog({
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="edit-task-assignee">Assignee</Label>
-                <Select value={assigneeId} onValueChange={setAssigneeId} disabled={isLoading}>
+                <Select value={assigneeId || "unassigned"} onValueChange={(v) => setAssigneeId(v === "unassigned" ? "" : v)} disabled={isLoading}>
                   <SelectTrigger id="edit-task-assignee">
                     <SelectValue placeholder="Select assignee" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Unassigned</SelectItem>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
                     {users.map((user) => (
                       <SelectItem key={user.id} value={user.id}>
                         {user.name}
