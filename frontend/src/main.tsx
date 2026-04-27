@@ -5,8 +5,15 @@ import './index.css';
 
 async function enableMocking() {
   const { worker } = await import('./mocks/browser');
+  
+  // Get the base URL for the service worker
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  
   return worker.start({
     onUnhandledRequest: 'bypass',
+    serviceWorker: {
+      url: `${baseUrl}mockServiceWorker.js`,
+    },
   });
 }
 
