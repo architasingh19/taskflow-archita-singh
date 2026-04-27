@@ -8,11 +8,14 @@ import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { TaskDetailPage } from './pages/TaskDetailPage';
 
+// Get basename from Vite's base URL for GitHub Pages
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '';
+
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={basename}>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
